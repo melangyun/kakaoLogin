@@ -7,7 +7,7 @@ module.exports = {
     "charset": "utf8mb4",
     "username": process.env.DB_USER || "root",
     "password": process.env.DB_PASS || "1112",
-    "database": process.env.DB_NAME || "sign",
+    "database": process.env.DB_NAME || "kakao",
     "entities": [process.env.ENTITYPATH || "dist/modules/**/*.entity.js"],
     "synchronize": true,
     "dropSchema" : process.env.DROPSCHEMA || false,
