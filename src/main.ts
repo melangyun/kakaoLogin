@@ -8,8 +8,8 @@ async function bootstrap() {
   
   const options = new DocumentBuilder()
   .addBearerAuth()
-  .setTitle("Signature shared program")
-  .setDescription("API Documents about kakaoLogin")
+  .setTitle("Basic Login & Kakao ")
+  .setDescription("API Documents about Basic Login and kakaoLogin interlink")
   .setVersion("1.0")
   .build();
   
