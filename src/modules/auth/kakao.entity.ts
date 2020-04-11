@@ -1,15 +1,16 @@
-import { Entity, OneToOne, Column } from "typeorm";
+import { Entity, OneToOne, Column, PrimaryColumn, JoinColumn } from "typeorm";
 import { User } from "../user/user.entity";
 
-@Entity()
-export class Kakao{
-    @OneToOne( type => User, { primary : true, cascade:true })
+@Entity({name:"kakao"})
+export class KaKao{
+    @OneToOne( type => User, { primary : true , cascade : true})
+    @JoinColumn()
     user: User;
-
+    
     @Column({type:"varchar", nullable:true})
-    accessToken:string;
-
+    accessToken!:string;
+    
     @Column({type:"varchar", nullable:true})
-    refreshToken:string;
+    refreshToken!:string;
     
 }

@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from "typeorm";
+import { KaKao } from "../auth/kakao.entity";
 
 @Entity()
 export class User {
@@ -19,4 +20,8 @@ export class User {
 
     @UpdateDateColumn({ name: "update_at" })
     updateAt! : Date;
+
+    @OneToOne( type => KaKao)
+    @JoinColumn()
+    kakao!: KaKao;
 }

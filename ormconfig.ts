@@ -8,7 +8,7 @@ module.exports = {
     "username": process.env.DB_USER || "root",
     "password": process.env.DB_PASS || "1112",
     "database": process.env.DB_NAME || "kakao",
-    "entities": [process.env.ENTITYPATH || "dist/modules/**/*.entity.js"],
+    "entities": [process.env.ENTITYPATH || "dist/src/modules/**/*.entity.js"],
     "synchronize": true,
     "dropSchema" : process.env.DROPSCHEMA || false,
   }
