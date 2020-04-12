@@ -1,5 +1,5 @@
 export interface Payload {
-    id : string;
+    email : string;
     nickname : string;
     iat?: number;
     expiresIn?: string;

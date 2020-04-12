@@ -5,7 +5,9 @@ import { User } from "../user/user.entity";
 import { KaKao } from "./kakao.entity";
 import { SignUpDTO } from "./auth.dto";
 import * as bcrypt from "bcryptjs";
-import { SanitizeUser } from "../user/user.type";
+import { SanitizeUser } from "../../type/user.type";
+import { Payload } from "../../type/payload.type";
+import { sign } from "jsonwebtoken"
 
 @Injectable()
 export class AuthService{
@@ -51,7 +53,17 @@ export class AuthService{
         if(!user){
             throw new HttpException("Invalid credential", HttpStatus.UNAUTHORIZED );
         }
-        
+
+        if( await bcrypt.compare(password, user.password)){
+            return this.sanitizeUser(user);
+        }
+
+        throw new HttpException("Invalid credential", HttpStatus.UNAUTHORIZED );
+    }
+
+    async signPayload(payload:Payload){
+        const secret:string = process.env.JWT_SECRET_ACCESS;
+        return sign( payload, secret, {expiresIn: "1d"} );
     }
     
 }

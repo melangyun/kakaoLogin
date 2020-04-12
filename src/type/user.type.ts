@@ -1,4 +1,4 @@
-import { KaKao } from "../auth/kakao.entity";
+import { KaKao } from "../modules/auth/kakao.entity";
 
 export interface SanitizeUser{
     email:string;
