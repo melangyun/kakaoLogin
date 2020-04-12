@@ -14,6 +14,9 @@ export class User {
 
     @Column({type:"varchar", nullable:false})
     nickname!: string;
+    
+    @Column( {type:"boolean", name :"is_active", nullable: false, default:true})
+    isActive!: boolean;
 
     @CreateDateColumn({ name: "create_at" })
     createAt! : Date;
