@@ -37,7 +37,8 @@ export class AuthService{
 
         if( userArray[0] && ( userArray[0].email === email )){
             throw new HttpException("Email already exists", HttpStatus.FORBIDDEN);
-        } else if( userArray[0] && ( userArray[0].email !== email )){
+        } 
+        else if( userArray[0] && ( userArray[0].email !== email )){
             throw new HttpException("Already existed phone number", HttpStatus.FORBIDDEN);
         }
 
@@ -47,6 +48,7 @@ export class AuthService{
         return this.sanitizeUser(registerUser);
     }
 
+    // 로그인!
     async findByLogin(email:string, password:string){
         const user:User = await this.userRepository.findOne({email});
         
@@ -54,6 +56,10 @@ export class AuthService{
             throw new HttpException("Invalid credential", HttpStatus.UNAUTHORIZED );
         }
 
+        if( !user.isActive ){
+            throw new HttpException('Unable to access deleted member.', HttpStatus.FORBIDDEN );
+        }
+        
         if( await bcrypt.compare(password, user.password)){
             return this.sanitizeUser(user);
         }
@@ -61,9 +67,23 @@ export class AuthService{
         throw new HttpException("Invalid credential", HttpStatus.UNAUTHORIZED );
     }
 
+    // JWT 발급
     async signPayload(payload:Payload){
         const secret:string = process.env.JWT_SECRET_ACCESS;
         return sign( payload, secret, {expiresIn: "1d"} );
+    }
+
+    async verifyUser(email:string):Promise<SanitizeUser>{
+        const user:User = await this.userRepository.findOne({email});
+        if( !user ){
+            throw new HttpException("Invalid user", HttpStatus.NOT_FOUND);
+        }
+        
+        if( !user.isActive ){
+            throw new HttpException('Unable to access deleted member.', HttpStatus.FORBIDDEN );
+        }
+        
+        return this.sanitizeUser(user);
     }
     
 }

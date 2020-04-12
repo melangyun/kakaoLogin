@@ -12,7 +12,7 @@ export class AuthController{
         private readonly authService: AuthService,
     ){}
 
-    @Post()
+    @Post("signup")
     async signUp(@Body() signUpDTO:SignUpDTO):Promise<SanitizeUser>{
         const user:SanitizeUser = await this.authService.create(signUpDTO);
         return user;

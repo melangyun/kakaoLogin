@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { AuthService } from './auth.service';
 import { Payload } from '../../type/payload.type';
+import { SanitizeUser } from 'src/type/user.type';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: Payload, done: VerifiedCallback) {
-    // const user = await this.authService.validateUser(payload);
-    // return done(null, user, payload.iat);
+    const user:SanitizeUser = await this.authService.verifyUser(payload.email);
+    return done(null, user, payload.iat);
   }
 }
