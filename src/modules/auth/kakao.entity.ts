@@ -1,4 +1,4 @@
-import { Entity, OneToOne, Column, PrimaryColumn, JoinColumn } from "typeorm";
+import { Entity, OneToOne, Column, JoinColumn } from "typeorm";
 import { User } from "../user/user.entity";
 
 @Entity({name:"kakao"})

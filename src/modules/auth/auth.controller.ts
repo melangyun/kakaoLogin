@@ -1,10 +1,16 @@
-import { Controller } from "@nestjs/common";
+import { Controller, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { AuthService } from "./auth.service";
 
 @ApiTags("auth")
 @Controller("auth")
 export class AuthController{
-    constructor(){
+    constructor(
+        private readonly authService: AuthService,
+    ){}
 
+    @Post("signup")
+    async signUp(){
+        
     }
 }
