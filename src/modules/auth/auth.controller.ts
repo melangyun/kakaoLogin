@@ -41,7 +41,7 @@ export class AuthController{
     }
 
     @Get("kakao/code")
-    async kakaoGetCode(@Query() query):Promise<KakaoInfoDTO>{
+    async kakaoGetCode(@Query() query):Promise<object>{
         // 카카오에서 redirect해주는는 url
         const { code } = query;
         const tokenData:KakaoTokenData = await this.authService.getKakaoToken(code);

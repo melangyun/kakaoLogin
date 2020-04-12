@@ -66,10 +66,4 @@ export class KakaoInfoDTO{
         type: String,
     })
     readonly kakaoRefreshToken: string;
-
-    @ApiProperty({
-        description : "registered user Email",
-        type : String,
-    })
-    readonly userEmail : string;
 }
