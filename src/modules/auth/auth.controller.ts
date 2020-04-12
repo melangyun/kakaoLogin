@@ -37,13 +37,14 @@ export class AuthController{
     @Get("kakao/code")
     async kakaoGetCode(@Query() query){
         const { code } = query;
+
+        const url = "https://kauth.kakao.com/oauth/token";
         const data = {
             grant_type : "authorization_code",
             client_id : process.env.KAKAOAPPKEY,
             redirect_uri : process.env.KAKAOREDIRECTURI,
             code
         }
-        const url = "https://kauth.kakao.com/oauth/token";
         const axiosConfig = {
             headers : { "Content-type" : "application/x-www-form-urlencoded;charset=utf-8" }
         };
@@ -54,9 +55,23 @@ export class AuthController{
                 console.error(err);
                 throw new HttpException("KaKao Server Exception", HttpStatus.INTERNAL_SERVER_ERROR);
             });
-
-        console.log("tokenData : ",tokenData);
         
+        const kakaoInfo:any = await axios.get("https://kapi.kakao.com/v2/user/me",{
+                    headers : { 
+                        "Authorization" : `Bearer ${tokenData.access_token}`,
+                        "Content-type" : "application/x-www-form-urlencoded;charset=utf-8"
+                    }
+                    
+            })
+            .then(res => res.data);
+         
+        const result = { 
+            kakaoAccessToken : tokenData.access_token,
+            kakaoRefreshToken : tokenData.refresh_token,
+            userEmail : kakaoInfo.kakao_account.email
+        }
+    
+        return result;
     }
     
     @Get("kakao")
