@@ -23,7 +23,21 @@ export class SignUpDTO{
         description : "The nickname you want",
         type: String,
     })
-    readonly nickname : string;  
+    readonly nickname: string;
+
+    @ApiProperty({
+        description: "Kakao AccessToken",
+        type: String,
+        nullable:true
+    })
+    readonly kakaoAccessToken?: string;
+
+    @ApiProperty({
+        description: "Kakao RefreshToken",
+        type: String,
+        nullable:true
+    })
+    readonly kakaoRefreshToken?: string;
 }
 
 export class LoginDTO{
@@ -38,4 +52,24 @@ export class LoginDTO{
         type: String,
     })
     readonly password : string;
+}
+
+export class KakaoInfoDTO{
+    @ApiProperty({
+        description : "kakao AccessToken",
+        type: String,
+    })
+    readonly kakaoAccessToken: string;
+
+    @ApiProperty({
+        description : "kakao RefreshToken",
+        type: String,
+    })
+    readonly kakaoRefreshToken: string;
+
+    @ApiProperty({
+        description : "registered user Email",
+        type : String,
+    })
+    readonly userEmail : string;
 }
