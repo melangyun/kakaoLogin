@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { Controller, Post, Body, Get, Query, HttpStatus, HttpException } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Controller, Post, Body, Get, Query, UseGuards } from "@nestjs/common";
+import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { SanitizeUser } from "../../type/user.type";
-import { LoginDTO, SignUpDTO } from "./auth.dto";
+import { LoginDTO, SignUpDTO, KakaoInfoDTO } from "./auth.dto";
 import { Payload, KakaoTokenData } from "../../type/payload.type";
-import axios from 'axios';
-import * as qs from "qs";
+import { AuthUser } from "src/utilities/user.decorator";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("auth")
 @Controller("auth")
@@ -18,6 +18,12 @@ export class AuthController{
     @Post("signup")
     async signUp(@Body() signUpDTO:SignUpDTO):Promise<SanitizeUser>{
         const user:SanitizeUser = await this.authService.create(signUpDTO);
+
+        const { email, kakaoAccessToken , kakaoRefreshToken } = signUpDTO;
+        if( kakaoAccessToken && kakaoRefreshToken ){
+            await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken);
+        }
+
         return user;
     }
     
@@ -35,51 +41,36 @@ export class AuthController{
     }
 
     @Get("kakao/code")
-    async kakaoGetCode(@Query() query){
+    async kakaoGetCode(@Query() query):Promise<object>{
+        // 카카오에서 redirect해주는는 url
         const { code } = query;
-
-        const url = "https://kauth.kakao.com/oauth/token";
-        const data = {
-            grant_type : "authorization_code",
-            client_id : process.env.KAKAOAPPKEY,
-            redirect_uri : process.env.KAKAOREDIRECTURI,
-            code
-        }
-        const axiosConfig = {
-            headers : { "Content-type" : "application/x-www-form-urlencoded;charset=utf-8" }
-        };
-
-        const tokenData:KakaoTokenData = await axios.post(url, qs.stringify(data), axiosConfig)
-            .then(res => res.data)
-            .catch(err => {
-                console.error(err);
-                throw new HttpException("KaKao Server Exception", HttpStatus.INTERNAL_SERVER_ERROR);
-            });
-        
-        const kakaoInfo:any = await axios.get("https://kapi.kakao.com/v2/user/me",{
-                    headers : { 
-                        "Authorization" : `Bearer ${tokenData.access_token}`,
-                        "Content-type" : "application/x-www-form-urlencoded;charset=utf-8"
-                    }
-                    
-            })
-            .then(res => res.data);
+        const tokenData:KakaoTokenData = await this.authService.getKakaoToken(code);
+        const kakaoInfo:any = await this.authService.getKaKaoUserInfo(tokenData.access_token)
          
-        const result = { 
+        return { 
             kakaoAccessToken : tokenData.access_token,
             kakaoRefreshToken : tokenData.refresh_token,
             userEmail : kakaoInfo.kakao_account.email
         }
-    
-        return result;
     }
     
     @Get("kakao")
     async kakaoAuth(){
+        // 카카오 코드 발급
         const appKey:string = process.env.KAKAOAPPKEY;
         const redirectUri:string = process.env.KAKAOREDIRECTURI;
         return `https://kauth.kakao.com/oauth/authorize?client_id=${appKey}&redirect_uri=${redirectUri}&response_type=code`;
     }
 
+    @Post("kakao")
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
+    async addKakaoAuth(@Body() kakaoInfoDTO:KakaoInfoDTO, @AuthUser() authUser:SanitizeUser){
+        // 추후 계정 연동
+        const {kakaoAccessToken, kakaoRefreshToken }= kakaoInfoDTO;
+        const { email } = authUser;
+        await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken );
+        return "Success in adding Kakao account";
+    }
 
 }

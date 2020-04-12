@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { Injectable,HttpException, HttpStatus } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -6,8 +7,10 @@ import { KaKao } from "./kakao.entity";
 import { SignUpDTO } from "./auth.dto";
 import * as bcrypt from "bcryptjs";
 import { SanitizeUser } from "../../type/user.type";
-import { Payload } from "../../type/payload.type";
+import { Payload, KakaoTokenData } from "../../type/payload.type";
 import { sign } from "jsonwebtoken"
+import axios from 'axios';
+import * as qs from "qs";
 
 @Injectable()
 export class AuthService{
@@ -49,7 +52,7 @@ export class AuthService{
     }
 
     // 로그인!
-    async findByLogin(email:string, password:string){
+    async findByLogin(email:string, password:string):Promise<SanitizeUser>{
         const user:User = await this.userRepository.findOne({email});
         
         if(!user){
@@ -73,6 +76,7 @@ export class AuthService{
         return sign( payload, secret, {expiresIn: "1d"} );
     }
 
+    // 유저 확인
     async verifyUser(email:string):Promise<SanitizeUser>{
         const user:User = await this.userRepository.findOne({email});
         if( !user ){
@@ -84,6 +88,54 @@ export class AuthService{
         }
         
         return this.sanitizeUser(user);
+    }
+
+    // 카카오 유저 토큰 발급
+    async getKakaoToken(code:string):Promise<KakaoTokenData>{
+        const url = "https://kauth.kakao.com/oauth/token";
+        const data = {
+            grant_type : "authorization_code",
+            client_id : process.env.KAKAOAPPKEY,
+            redirect_uri : process.env.KAKAOREDIRECTURI,
+            code
+        }
+        const axiosConfig = {
+            headers : { "Content-type" : "application/x-www-form-urlencoded;charset=utf-8" }
+        };
+
+        return await axios.post(url, qs.stringify(data), axiosConfig)
+            .then(res => res.data)
+            .catch(err => {
+                console.error(err);
+                throw new HttpException("KaKao Server Exception", HttpStatus.INTERNAL_SERVER_ERROR);
+            });
+    }
+    
+    // 카카오  accessToken으로 유저 정보 조회 API
+    async getKaKaoUserInfo(kakaoAccessToken:string):Promise<object>{
+        return await axios.get("https://kapi.kakao.com/v2/user/me",{
+            headers : { 
+                "Authorization" : `Bearer ${kakaoAccessToken}`,
+                "Content-type" : "application/x-www-form-urlencoded;charset=utf-8"
+            }
+            
+        }).then(res => res.data)
+        .catch(err => {
+            console.error(err);
+            throw new HttpException("KaKao Server Exception", HttpStatus.INTERNAL_SERVER_ERROR);
+        });
+    }
+
+    async saveKakaoAuth(email:string, kakaoAccessToken:string, kakaoRefreshToken:string):Promise<void>{
+        const user = new User();
+        user.email = email;
+        
+        const kakao = new KaKao();
+        kakao.user = user;
+        kakao.accessToken = kakaoAccessToken;
+        kakao.refreshToken = kakaoRefreshToken;
+
+        await this.kaKaoRepository.save(kakao);
     }
     
 }
