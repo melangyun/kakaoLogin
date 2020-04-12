@@ -7,7 +7,9 @@ import { KaKao } from "./kakao.entity";
 import { User } from "../user/user.entity";
 
 @Module({
-    imports:[TypeOrmModule.forFeature([KaKao, User])],
+    imports:[
+        TypeOrmModule.forFeature([KaKao, User]),
+    ],
     controllers:[AuthController],
     providers:[ AuthService, JwtStrategy ]
 })
