@@ -19,9 +19,9 @@ export class AuthController{
     async signUp(@Body() signUpDTO:SignUpDTO):Promise<SanitizeUser>{
         const user:SanitizeUser = await this.authService.create(signUpDTO);
 
-        const { email, kakaoAccessToken , kakaoRefreshToken } = signUpDTO;
-        if( kakaoAccessToken && kakaoRefreshToken ){
-            await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken);
+        const { email, kakaoAccessToken , kakaoRefreshToken, userId } = signUpDTO;
+        if( kakaoAccessToken && kakaoRefreshToken && userId ){
+            await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken, userId);
         }
 
         return user;
@@ -29,8 +29,24 @@ export class AuthController{
     
     @Post("login")
     async login(@Body() loginDTO:LoginDTO) : Promise<{payload:Payload , token:string}>{
+        //일반 로그인
         const { email , password } = loginDTO;
         const user:SanitizeUser = await this.authService.findByLogin(email, password);
+        const payload = {
+            email : user.email,
+            nickname : user.nickname
+        }
+
+        const token:string = await this.authService.signPayload(payload);
+        return { payload, token };
+    }
+
+    @Post("kakao/login")
+    async kakaoLogin(@Body() kakaoLoginDTO:KakaoInfoDTO):Promise<{payload:Payload , token:string}> {
+        //카카오로 로그인
+        const { userId, kakaoAccessToken, kakaoRefreshToken } = kakaoLoginDTO;
+        const kakao = await this.authService.findBykakaoId(userId, kakaoAccessToken, kakaoRefreshToken);
+        const user:SanitizeUser = await this.authService.verifyUser(kakao.user.email);
         const payload = {
             email : user.email,
             nickname : user.nickname
@@ -46,11 +62,12 @@ export class AuthController{
         const { code } = query;
         const tokenData:KakaoTokenData = await this.authService.getKakaoToken(code);
         const kakaoInfo:any = await this.authService.getKaKaoUserInfo(tokenData.access_token)
-         
+
         return { 
             kakaoAccessToken : tokenData.access_token,
             kakaoRefreshToken : tokenData.refresh_token,
-            userEmail : kakaoInfo.kakao_account.email
+            userEmail : kakaoInfo.kakao_account.email,
+            userId : kakaoInfo.id
         }
     }
     
@@ -67,9 +84,9 @@ export class AuthController{
     @UseGuards(AuthGuard('jwt'))
     async addKakaoAuth(@Body() kakaoInfoDTO:KakaoInfoDTO, @AuthUser() authUser:SanitizeUser){
         // 추후 계정 연동
-        const {kakaoAccessToken, kakaoRefreshToken }= kakaoInfoDTO;
+        const {kakaoAccessToken, kakaoRefreshToken, userId }= kakaoInfoDTO;
         const { email } = authUser;
-        await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken );
+        await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken, userId );
         return "Success in adding Kakao account";
     }
 

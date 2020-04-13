@@ -11,4 +11,5 @@ module.exports = {
     "entities": [process.env.ENTITYPATH || "dist/src/modules/**/*.entity.js"],
     "synchronize": true,
     "dropSchema" : process.env.DROPSCHEMA || false,
+    "logging" : "all"
   }

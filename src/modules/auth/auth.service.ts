@@ -126,7 +126,8 @@ export class AuthService{
         });
     }
 
-    async saveKakaoAuth(email:string, kakaoAccessToken:string, kakaoRefreshToken:string):Promise<void>{
+    //추후 저장시 이용하는 메소드
+    async saveKakaoAuth(email:string, kakaoAccessToken:string, kakaoRefreshToken:string, userId:number ):Promise<void>{
         const user = new User();
         user.email = email;
         
@@ -134,8 +135,29 @@ export class AuthService{
         kakao.user = user;
         kakao.accessToken = kakaoAccessToken;
         kakao.refreshToken = kakaoRefreshToken;
+        kakao.id = userId;
 
         await this.kaKaoRepository.save(kakao);
+    }
+
+    async findBykakaoId(id:number, kakaoAccessToken:string, kakaoRefreshToken:string):Promise<KaKao>{
+        const rowDataPacket:Array<any> = await this.kaKaoRepository.query(`select * from kakao where id = ${id}`);
+        const kakao:any = rowDataPacket[0];
+         
+        if(!kakao){
+            throw new HttpException("Not registered as a Kakao member", HttpStatus.UNAUTHORIZED);
+        }
+
+        const user:User = new User();
+        user.email = kakao.userEmail;
+        
+        const updateKaKao:KaKao = new KaKao();
+        updateKaKao.accessToken = kakaoAccessToken;
+        updateKaKao.refreshToken = kakaoRefreshToken;
+        updateKaKao.id = id;
+        updateKaKao.user = user;
+
+        return await this.kaKaoRepository.save(updateKaKao);
     }
     
 }

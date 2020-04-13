@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, MinLength, MaxLength, IsDefined, Matches } from "class-validator";
+import { IsEmail, IsString, IsDefined, Matches, IsNumber } from "class-validator";
+
 // class-validator 메소드 모음 : https://www.npmjs.com/package/class-validator
 export class SignUpDTO{
     @ApiProperty({
@@ -49,6 +50,12 @@ export class SignUpDTO{
         nullable:true
     })
     readonly kakaoRefreshToken?: string|null;
+
+    @ApiProperty({
+        description : "kakao userId",
+        type: Number,
+    })
+    readonly userId?: number|null;
 }
 
 export class LoginDTO{
@@ -84,4 +91,12 @@ export class KakaoInfoDTO{
     @IsString()
     @IsDefined()
     readonly kakaoRefreshToken: string;
+
+    @ApiProperty({
+        description : "kakao userId",
+        type: Number,
+    })
+    @IsNumber()
+    @IsDefined()
+    readonly userId: number;
 }

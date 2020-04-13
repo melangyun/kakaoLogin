@@ -24,7 +24,7 @@ export class User {
     @UpdateDateColumn({ name: "update_at" })
     updateAt! : Date;
 
-    @OneToOne( type => KaKao)
+    @OneToOne( type => KaKao, { cascade : true})
     @JoinColumn()
     kakao!: KaKao;
 }

@@ -6,6 +6,9 @@ export class KaKao{
     @OneToOne( type => User, { primary : true , cascade : true})
     @JoinColumn()
     user: User;
+
+    @Column({type:"int", nullable:false, unique: true})
+    id:number;
     
     @Column({type:"varchar", nullable:true})
     accessToken!:string;
