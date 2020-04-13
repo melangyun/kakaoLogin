@@ -79,8 +79,6 @@
 
 > 카카오로 회원가입의 경우 `auth/kakao (GET)`요청이 선행되어야 하며, 카카오 인증절차 후 받은 응답으로 `kakaoAccessToken`, `kakaoRefreshToken`, `userId` 항목을 요청보내야 합니다.
 
-*배포되어 있는 `http://54.161.111.8:3000/api/` 를 사용할 경우, 아직 RDS의 MariaDB 한글 설정이 완료되지 않아 한글 입력시 Internal Servel Error가 발생 할 수 있습니다. 가급적 영어로 이용해 주세요.(이 안내가 남아있다면 아직 업데이트 되지 않은것입니다.)*
-
 <br>
 
 <br>
