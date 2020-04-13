@@ -126,7 +126,15 @@ export class AuthService{
         });
     }
 
-    //추후 저장시 이용하는 메소드
+    // 유저 번호로 이미 등록된 유저인지 확인
+    async validateKakaoId(id:number):Promise<void>{
+        const kakao:KaKao = await this.kaKaoRepository.findOne({id});
+        if(kakao){
+            throw new HttpException("You are already a registered Kakao user.", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    //카카오 추후 저장시 이용하는 메소드
     async saveKakaoAuth(email:string, kakaoAccessToken:string, kakaoRefreshToken:string, userId:number ):Promise<void>{
         const user = new User();
         user.email = email;

@@ -17,10 +17,12 @@ export class AuthController{
 
     @Post("signup")
     async signUp(@Body() signUpDTO:SignUpDTO):Promise<SanitizeUser>{
+        //회원가입
         const user:SanitizeUser = await this.authService.create(signUpDTO);
 
         const { email, kakaoAccessToken , kakaoRefreshToken, userId } = signUpDTO;
         if( kakaoAccessToken && kakaoRefreshToken && userId ){
+            await this.authService.validateKakaoId(userId);
             await this.authService.saveKakaoAuth(email, kakaoAccessToken, kakaoRefreshToken, userId);
         }
 
