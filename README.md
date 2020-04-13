@@ -16,6 +16,7 @@
 2. Framework : nestJS
 3. DB : MariaDB, typeorm
 4. API : Kakao API
+5. Deploy : EC2 , RDS
 
 <br>
 
