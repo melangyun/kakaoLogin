@@ -142,3 +142,9 @@
 <br>
 
 <br>
+
+***
+
+# Future Development Direction
+- Testcase branch에서 testcase를 진행할 예정입니다. (혹은, 진행 중 입니다.)
+- Docker branch에서 DockerFile을 작성할 예정입니다. (혹은, 진행 중 입니다.)
