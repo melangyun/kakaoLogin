@@ -1,0 +1,23 @@
+version: '3.7'
+services: 
+    app:
+        build :
+            context: .
+            dockerfile: ./Dockerfile
+        restart: always
+        ports: 
+            - 3000:3000
+        depends_on:
+            - database
+    
+    database:
+        image: mariadb
+        ports: 
+            - 3306:3306
+        restart: always
+        environment: 
+            MYSQL_ROOT_PASSWORD: 1112
+            MYSQL_DATABASE : kakao
+            MYSQL_USER: root
+            MYSQL_PASSWORD: 1112
+
